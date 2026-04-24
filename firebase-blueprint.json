@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account information and fitness goals",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phoneNumber": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Booking": {
+      "title": "Class Booking",
+      "description": "Reservation for a fitness session",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "status": { "type": "string", "enum": ["confirmed", "cancelled", "attended"] },
+        "bookedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "sessionId", "status", "bookedAt"]
+    },
+    "ContactMessage": {
+      "title": "Contact Form Message",
+      "description": "Messages sent via the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message", "timestamp"]
+    },
+    "Review": {
+      "title": "User Review",
+      "description": "Public feedback from members",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+        "comment": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userName", "rating", "comment", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Individual user profile documents"
+    },
+    "bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Session reservations"
+    },
+    "contacts/{contactId}": {
+      "schema": "ContactMessage",
+      "description": "User inquiries"
+    },
+    "reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Public member feedback"
+    }
+  }
+}
