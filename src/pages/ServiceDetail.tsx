@@ -6,22 +6,21 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { ArrowLeft, Share2, Heart, CheckCircle2, Loader2, AlertTriangle } from 'lucide-react';
-import { fetchServices } from '../lib/api';
-import { Service } from '../types';
+import { dbService } from '../services/firebaseService';
 
 export default function ServiceDetail() {
   const { id } = useParams();
-  const [service, setService] = useState<Service | null>(null);
+  const [service, setService] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
+      if (!id) return;
       try {
         setLoading(true);
-        const data = await fetchServices();
-        const found = data.find(s => s.id === id);
-        setService(found || null);
+        const data = await dbService.getService(id);
+        setService(data || null);
       } catch (err) {
         setError('Transmission error. Class schematic failed to load.');
       } finally {

@@ -10,6 +10,7 @@ service cloud.firestore {
     function isSignedIn() { return request.auth != null; }
     function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isAdmin() { return isSignedIn() && request.auth.token.email == 'spcollabshq@gmail.com'; }
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
@@ -84,11 +85,32 @@ service cloud.firestore {
 
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isVerified() && isValidReview(incoming());
+      allow create: if (isVerified() && isValidReview(incoming())) || isAdmin();
       allow update: if isVerified() && isOwner(resource.data.userId) && 
                       incoming().diff(existing()).affectedKeys().hasOnly(['rating', 'comment', 'timestamp']) &&
                       isValidReview(incoming());
       allow delete: if isVerified() && isOwner(resource.data.userId);
+    }
+
+    // Static Content Collections (Schedules, Services, Trainers)
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /trainers/{trainerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /schedules/{scheduleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

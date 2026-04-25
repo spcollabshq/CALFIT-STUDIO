@@ -3,17 +3,66 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { Clock, Users, Calendar, ArrowLeft, ShieldCheck, Zap } from 'lucide-react';
-import { SCHEDULE, SERVICES, TRAINERS } from '../data';
+import { Clock, Users, Calendar, ArrowLeft, ShieldCheck, Zap, Loader2, AlertTriangle } from 'lucide-react';
+import { dbService } from '../services/firebaseService';
 
 export default function ClassDetail() {
   const { id } = useParams();
-  const session = SCHEDULE.find(s => s.id === id);
-  const service = SERVICES.find(s => s?.id === session?.serviceId);
-  const trainer = TRAINERS.find(t => t?.id === session?.trainerId);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!session || !service || !trainer) return <Navigate to="/schedule" />;
+  useEffect(() => {
+    const loadData = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const schedule = await dbService.getSchedule();
+        const session = schedule?.find(s => s.id === id);
+        
+        if (!session) {
+          setError('Session not found.');
+          return;
+        }
+
+        const [service, trainer] = await Promise.all([
+          dbService.getService(session.serviceId),
+          dbService.getTrainer(session.trainerId)
+        ]);
+
+        setData({ session, service, trainer });
+      } catch (err) {
+        setError('Synchronized session schematic failed to load.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
+
+  if (loading) {
+     return (
+       <div className="min-h-screen flex items-center justify-center">
+         <Loader2 className="text-brand animate-spin" size={48} />
+       </div>
+     );
+  }
+
+  if (error || !data?.session || !data?.service || !data?.trainer) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 text-center">
+        <div className="space-y-6">
+          <AlertTriangle className="text-red-500 mx-auto" size={48} />
+          <p className="text-xl text-white/60">{error || 'Session synchronization failed.'}</p>
+          <Link to="/schedule" className="btn-primary space-x-2"><ArrowLeft size={16}/><span>Back to Schedule</span></Link>
+        </div>
+      </div>
+    );
+  }
+
+  const { session, service, trainer } = data;
 
   return (
     <div className="container mx-auto px-6 py-24">

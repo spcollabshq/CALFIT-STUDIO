@@ -3,12 +3,52 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Check, ArrowRight } from 'lucide-react';
-import { PLANS } from '../data';
+import { useState, useEffect } from 'react';
+import { Check, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
+import { dbService } from '../services/firebaseService';
 import { clsx } from 'clsx';
 import { Link } from 'react-router-dom';
 
 export default function Membership() {
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const data = await dbService.getPlans();
+        setPlans(data || []);
+      } catch (err) {
+        setError('Synchronized pricing failure. Network grid down.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="text-brand animate-spin" size={48} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 text-center">
+        <div className="space-y-6">
+          <AlertTriangle className="text-red-500 mx-auto" size={48} />
+          <p className="text-xl text-white/60">{error}</p>
+          <button onClick={() => window.location.reload()} className="btn-primary">Retry</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-24 container mx-auto px-6">
       <div className="text-center max-w-3xl mx-auto mb-20">
@@ -18,7 +58,7 @@ export default function Membership() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {PLANS.map((plan) => (
+        {plans.map((plan) => (
           <div 
             key={plan.id}
             className={clsx(

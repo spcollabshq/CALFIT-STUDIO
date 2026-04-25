@@ -6,13 +6,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { ArrowLeft, Star, Calendar, MessageSquare, Award, Loader2, AlertTriangle } from 'lucide-react';
-import { fetchTrainers, fetchServices } from '../lib/api';
-import { Trainer, Service } from '../types';
+import { dbService } from '../services/firebaseService';
 
 export default function TrainerProfile() {
   const { id } = useParams();
-  const [trainer, setTrainer] = useState<Trainer | null>(null);
-  const [services, setServices] = useState<Service[]>([]);
+  const [trainer, setTrainer] = useState<any | null>(null);
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,12 +20,12 @@ export default function TrainerProfile() {
       try {
         setLoading(true);
         const [trainData, servData] = await Promise.all([
-          fetchTrainers(),
-          fetchServices(),
+          dbService.getTrainers(),
+          dbService.getServices(),
         ]);
-        const foundTrainer = trainData.find(t => t.id === id);
+        const foundTrainer = trainData?.find(t => t.id === id);
         setTrainer(foundTrainer || null);
-        setServices(servData);
+        setServices(servData || []);
       } catch (err) {
         setError('Trainer dossier missing. Network interruption.');
       } finally {

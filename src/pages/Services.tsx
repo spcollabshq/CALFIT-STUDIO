@@ -7,11 +7,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ArrowRight, Filter, Loader2, AlertTriangle } from 'lucide-react';
 import { motion } from 'motion/react';
-import { fetchServices } from '../lib/api';
+import { dbService } from '../services/firebaseService';
 import { Service } from '../types';
 
 export default function Services() {
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,10 +21,10 @@ export default function Services() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const data = await fetchServices();
-        setServices(data);
-      } catch (err) {
-        setError('Failed to load fitness programs. Please try again.');
+        const data = await dbService.getServices();
+        setServices(data || []);
+      } catch (err: any) {
+        setError('Failed to load fitness programs. Synchronized feed interrupted.');
       } finally {
         setLoading(false);
       }

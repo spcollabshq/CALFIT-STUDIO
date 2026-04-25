@@ -21,10 +21,11 @@
       "properties": {
         "userId": { "type": "string" },
         "sessionId": { "type": "string" },
+        "time": { "type": "string" },
         "status": { "type": "string", "enum": ["confirmed", "cancelled", "attended"] },
         "bookedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "sessionId", "status", "bookedAt"]
+      "required": ["userId", "sessionId", "time", "status", "bookedAt"]
     },
     "ContactMessage": {
       "title": "Contact Form Message",
@@ -50,6 +51,52 @@
         "timestamp": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "userName", "rating", "comment", "timestamp"]
+    },
+    "Service": {
+      "title": "Fitness Program",
+      "description": "Details about a specific class or training program",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "duration": { "type": "string" },
+        "level": { "type": "string" },
+        "image": { "type": "string" },
+        "description": { "type": "string" },
+        "fullDescription": { "type": "string" },
+        "benefits": { "type": "array" },
+        "whoIsItFor": { "type": "string" }
+      }
+    },
+    "Trainer": {
+      "title": "Elite Trainer",
+      "description": "Professional coach profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "specialty": { "type": "string" },
+        "experience": { "type": "string" },
+        "image": { "type": "string" },
+        "bio": { "type": "string" },
+        "socials": { "type": "object" }
+      }
+    },
+    "Schedule": {
+      "title": "Class Session",
+      "description": "A specific instance of a class in the schedule",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "trainerId": { "type": "string" },
+        "day": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "availableSlots": { "type": "number" },
+        "totalSlots": { "type": "number" }
+      }
     }
   },
   "firestore": {
@@ -68,6 +115,18 @@
     "reviews/{reviewId}": {
       "schema": "Review",
       "description": "Public member feedback"
+    },
+    "services/{serviceId}": {
+      "schema": "Service",
+      "description": "Fitness program definitions"
+    },
+    "trainers/{trainerId}": {
+      "schema": "Trainer",
+      "description": "Coach profiles"
+    },
+    "schedules/{scheduleId}": {
+      "schema": "Schedule",
+      "description": "Weekly class timetable"
     }
   }
 }

@@ -7,12 +7,11 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Trophy, Zap, Clock, Users, Star, Loader2 } from 'lucide-react';
-import { fetchServices } from '../lib/api';
-import { Service } from '../types';
 import { dbService } from '../services/firebaseService';
+import { Service } from '../types';
 
 export default function Home() {
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,10 +20,10 @@ export default function Home() {
       try {
         setLoading(true);
         const [servData, revsData] = await Promise.all([
-          fetchServices(),
+          dbService.getServices(),
           dbService.getReviews(),
         ]);
-        setServices(servData);
+        setServices(servData || []);
         setReviews((revsData || []).slice(0, 2)); // Show only top 2
       } catch (err) {
         console.error('Home data sync failure');

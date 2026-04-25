@@ -6,14 +6,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Clock, MapPin, Loader2, AlertTriangle, Users } from 'lucide-react';
-import { fetchSchedule, fetchServices, fetchTrainers } from '../lib/api';
+import { dbService } from '../services/firebaseService';
 import { ClassSession, Service, Trainer } from '../types';
 import { clsx } from 'clsx';
 
 export default function Schedule() {
-  const [schedule, setSchedule] = useState<ClassSession[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [schedule, setSchedule] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [trainers, setTrainers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,13 +26,13 @@ export default function Schedule() {
       try {
         setLoading(true);
         const [schedData, servData, trainData] = await Promise.all([
-          fetchSchedule(),
-          fetchServices(),
-          fetchTrainers(),
+          dbService.getSchedule(),
+          dbService.getServices(),
+          dbService.getTrainers(),
         ]);
-        setSchedule(schedData);
-        setServices(servData);
-        setTrainers(trainData);
+        setSchedule(schedData || []);
+        setServices(servData || []);
+        setTrainers(trainData || []);
       } catch (err) {
         setError('Failed to sync schedule. Please refresh the matrix.');
       } finally {

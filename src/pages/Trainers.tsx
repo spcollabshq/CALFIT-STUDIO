@@ -6,11 +6,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Instagram, Twitter, Loader2, AlertTriangle } from 'lucide-react';
-import { fetchTrainers } from '../lib/api';
-import { Trainer } from '../types';
+import { dbService } from '../services/firebaseService';
 
 export default function Trainers() {
-  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [trainers, setTrainers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,8 +17,8 @@ export default function Trainers() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const data = await fetchTrainers();
-        setTrainers(data);
+        const data = await dbService.getTrainers();
+        setTrainers(data || []);
       } catch (err) {
         setError('Failed to load the elite squad. Systems offline.');
       } finally {
