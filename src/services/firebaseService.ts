@@ -19,7 +19,8 @@ import {
   getDocs,
   serverTimestamp,
   getDocFromServer,
-  updateDoc
+  updateDoc,
+  deleteDoc
 } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
@@ -456,12 +457,8 @@ export const dbService = {
 
   async deleteBooking(bookingId: string) {
     try {
-      // For this app, maybe we just want to delete it if it's not confirmed yet
-      // But status is better for tracking. Let's just implement a real delete for simplicity if user wants.
       const docRef = doc(db, 'bookings', bookingId);
-      // Wait, rules don't permit delete for bookings. I should check rules.
-      // match /bookings/{bookingId} only has list, get, create.
-      // I'll update rules to allow cancel (update status).
+      await deleteDoc(docRef);
     } catch (error) {
        handleFirestoreError(error, 'delete', `bookings/${bookingId}`);
     }

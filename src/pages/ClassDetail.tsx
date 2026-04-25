@@ -4,13 +4,18 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Clock, Users, Calendar, ArrowLeft, ShieldCheck, Zap, Loader2, AlertTriangle } from 'lucide-react';
 import { dbService } from '../services/firebaseService';
+import { ClassSession, Service, Trainer } from '../types';
 
 export default function ClassDetail() {
   const { id } = useParams();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<{
+    session: ClassSession;
+    service: Service;
+    trainer: Trainer;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,8 +24,8 @@ export default function ClassDetail() {
       if (!id) return;
       try {
         setLoading(true);
-        const schedule = await dbService.getSchedule();
-        const session = schedule?.find(s => s.id === id);
+        const schedule = (await dbService.getSchedule()) as ClassSession[];
+        const session = schedule?.find((s) => s.id === id);
         
         if (!session) {
           setError('Session not found.');
